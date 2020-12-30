@@ -1,0 +1,24 @@
+{
+  "name": "react-router-nav",
+  "version": "1.0.0",
+  "description": "react-router具名路由",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "scripts": {
+    "build": "tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/heyuuuu/react-router-nav.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/heyuuuu/react-router-nav/issues"
+  },
+  "homepage": "https://github.com/heyuuuu/react-router-nav#readme",
+  "devDependencies": {
+    "@types/history": "*",
+    "typescript": "^4.1.3"
+  }
+}
