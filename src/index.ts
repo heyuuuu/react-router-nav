@@ -7,7 +7,7 @@ interface RouteItem {
 
 class ReactRouterNav <RouteProps extends RouteItem = any> {
     protected History: History
-    protected Routes: Record<string,string>
+    protected Routes: Record<string,string> = {}
     constructor(history: History,routes: Array<RouteProps>){
         this.History = history
         this.inject(routes)
