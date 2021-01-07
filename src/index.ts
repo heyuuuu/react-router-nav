@@ -6,9 +6,13 @@ interface RouteItem {
 }
 
 class ReactRouterNav <RouteProps extends RouteItem = any> {
-    protected History: History
+    public History: History
     protected Routes: Record<string,string> = {}
     // 对象转换为序列字符串
+    constructor(history: History,routes: Array<RouteProps> = []){
+        this.History = history
+        this.SetRoutes(routes)
+    }
     private stringify(search: string | object = {}): string{
         let params = ""
         if(typeof search === "string"){
@@ -17,14 +21,6 @@ class ReactRouterNav <RouteProps extends RouteItem = any> {
             params = Object.keys(search).map(k => `${k}=${search[k]}`).join("&")
         }
         return params
-    }
-    // 设置路由模式
-    public SetRouteMode(history: History){
-        if(this.History){
-            console.error('已经设置过路由模式，不允许重复设置')
-        }else{
-            this.History = history
-        }
     }
     public SetRoutes(routes: Array<RouteProps>){
         routes.map(item => {
