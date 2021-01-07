@@ -6,9 +6,9 @@ interface RouteItem {
 declare class ReactRouterNav<RouteProps extends RouteItem = any> {
     protected History: History;
     protected Routes: Record<string, string>;
-    constructor(history: History, routes: Array<RouteProps>);
     private stringify;
-    private inject;
+    SetRouteMode(history: History): void;
+    SetRoutes(routes: Array<RouteProps>): void;
     GetPathFromName(name: string, params?: {}): string | void;
     GetHrefFromName(name: string, params?: {}, search?: string | object): string | void;
     push(name: string, params?: {}, search?: string | object): void;

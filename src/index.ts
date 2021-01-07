@@ -8,10 +8,6 @@ interface RouteItem {
 class ReactRouterNav <RouteProps extends RouteItem = any> {
     protected History: History
     protected Routes: Record<string,string> = {}
-    constructor(history: History,routes: Array<RouteProps>){
-        this.History = history
-        this.inject(routes)
-    }
     // 对象转换为序列字符串
     private stringify(search: string | object = {}): string{
         let params = ""
@@ -22,7 +18,15 @@ class ReactRouterNav <RouteProps extends RouteItem = any> {
         }
         return params
     }
-    private inject(routes: Array<RouteItem>){
+    // 设置路由模式
+    public SetRouteMode(history: History){
+        if(this.History){
+            console.error('已经设置过路由模式，不允许重复设置')
+        }else{
+            this.History = history
+        }
+    }
+    public SetRoutes(routes: Array<RouteProps>){
         routes.map(item => {
             if(this.Routes.hasOwnProperty(item.name)){
                 console.error(`route-name(${item.name})有重复，请重命名`)
