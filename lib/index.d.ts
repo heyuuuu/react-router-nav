@@ -3,17 +3,15 @@ interface RouteItem {
     name: string;
     path: string;
 }
-declare class ReactRouterNav<RouteProps extends RouteItem = any> {
-    History: History;
-    protected Routes: Record<string, string>;
-    constructor(history: History, routes?: Array<RouteProps>);
-    private stringify;
-    SetRoutes(routes: Array<RouteProps>): void;
-    GetPathFromName(name: string, params?: {}): string | void;
-    GetHrefFromName(name: string, params?: {}, search?: string | object): string | void;
-    push(name: string, params?: {}, search?: string | object): void;
-    replace(name: string, params?: {}, search?: string | object): void;
-    pushCall(name: string, params?: {}, search?: string | object): () => void;
-    replaceCall(name: string, params?: {}, search?: string | object): () => void;
-}
+declare type PARAMS_TYPE = [string] | [string, object] | [string, object, string | object];
+declare let History: History;
+export declare function InjectNavModel<RouteProps extends RouteItem = any>(history: History, routes?: Array<RouteProps>): void;
+declare const ReactRouterNav: {
+    GetPathFromName(name: string, params?: {}): string;
+    GetHrefFromName(...[name, params, search]: PARAMS_TYPE): string | void;
+    push(...[name, params, search]: PARAMS_TYPE): void;
+    replace(...[name, params, search]: PARAMS_TYPE): void;
+    pushCall(...[name, params, search]: PARAMS_TYPE): () => void;
+    replaceCall(...[name, params, search]: PARAMS_TYPE): () => void;
+};
 export default ReactRouterNav;

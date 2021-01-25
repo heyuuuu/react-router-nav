@@ -4,73 +4,73 @@ interface RouteItem {
     name: string
     path: string
 }
+ 
+type PARAMS_TYPE = [string] | [string,object] | [string,object,string | object]
 
-class ReactRouterNav <RouteProps extends RouteItem = any> {
-    public History: History
-    protected Routes: Record<string,string> = {}
-    // 对象转换为序列字符串
-    constructor(history: History,routes: Array<RouteProps> = []){
-        this.History = history
-        this.SetRoutes(routes)
+let History: History
+let Routes: Record<string,string> = {}
+
+function stringify(search: string | object = {}): string{
+    let params = ""
+    if(typeof search === "string"){
+        params = search
+    }else{
+        params = Object.keys(search).map(k => `${k}=${search[k]}`).join("&")
     }
-    private stringify(search: string | object = {}): string{
-        let params = ""
-        if(typeof search === "string"){
-            params = search
+    return params
+}
+
+function InjectNavRoutes<RouteProps extends RouteItem = any>(routes: Array<RouteProps> = []){
+    routes.map(item => {
+        if(Routes.hasOwnProperty(item.name)){
+            console.error(`route-name(${item.name})有重复，请重命名`)
         }else{
-            params = Object.keys(search).map(k => `${k}=${search[k]}`).join("&")
+            Routes[item.name] = item.path
         }
-        return params
-    }
-    public SetRoutes(routes: Array<RouteProps>){
-        routes.map(item => {
-            if(this.Routes.hasOwnProperty(item.name)){
-                console.error(`route-name(${item.name})有重复，请重命名`)
-            }else{
-                this.Routes[item.name] = item.path
-            }
-        })
-    }
+    })
+}
+
+export function InjectNavModel<RouteProps extends RouteItem = any>(history: History,routes: Array<RouteProps> = []){
+    History = history
+    InjectNavRoutes(routes)
+}
+
+const ReactRouterNav = {
     // 获取pathname
-    public GetPathFromName(name: string,params = {}) : string | void{
-        const path = this.Routes[name]
+    GetPathFromName(name: string,params = {}) : string{
+        const path = Routes[name]
         if(path){
             return path.replace(/\/:(\w+)/g,(_,k) => {
                 if(params.hasOwnProperty(k)){
                     return '/' + params[k]
                 }else{
-                    console.error(`路由${name}缺少参数:${k}`)
-                    return ''
+                    console.error(`路由${path}缺少参数:${k}`)
+                    return '/'
                 }
             })
         }else{
             console.error(`没有找到${name}路由`)
+            return '/'
         }
-    }
+    },
     // 获取完整路径
-    public GetHrefFromName(name: string,params = {},search: string | object = {}): string | void{
+    GetHrefFromName(...[name,params = {},search = {}]: PARAMS_TYPE): string | void{
         const fullpath = this.GetPathFromName(name,params)
-        if(fullpath){
-            const pathname = this.History.createHref({pathname: fullpath,search: this.stringify(search)})
-            return window.location.origin + ('/' + pathname).replace('//','')
-        }
-    }
-    public push(name: string,params = {},search: string | object = {}): void{
+        const pathname = History.createHref({pathname: fullpath,search: stringify(search)})
+        return window.location.origin + ('/' + pathname).replace(/\/+/g,'/')
+    },
+    push(...[name,params = {},search = {}]: PARAMS_TYPE): void{
         const fullpath = this.GetPathFromName(name,params)
-        if(fullpath){
-            this.History.push({pathname: fullpath,search: this.stringify(search)})
-        }
-    }
-    public replace(name: string,params = {},search: string | object = {}): void{
+        History.push({pathname: fullpath,search: stringify(search)})
+    },
+    replace(...[name,params = {},search = {}]: PARAMS_TYPE): void{
         const fullpath = this.GetPathFromName(name,params)
-        if(fullpath){
-            this.History.replace({pathname: fullpath,search: this.stringify(search)})
-        }
-    }
-    public pushCall(name: string,params = {},search: string | object = {}): () => void{
+        History.replace({pathname: fullpath,search: stringify(search)})
+    },
+    pushCall(...[name,params = {},search = {}]: PARAMS_TYPE): () => void{
         return () => this.push(name,params,search)
-    }
-    public replaceCall(name: string,params = {},search: string | object = {}): () => void{
+    },
+    replaceCall(...[name,params = {},search = {}]: PARAMS_TYPE): () => void{
         return () => this.replace(name,params,search)
     }
 }
