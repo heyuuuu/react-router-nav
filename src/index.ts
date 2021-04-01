@@ -1,6 +1,7 @@
 import { History } from "history"
+import { matchPath , generatePath , RouteProps } from "react-router"
 
-interface RouteItem {
+interface RouteItem extends RouteProps {
     name: string
     path: string
 }
@@ -8,7 +9,8 @@ interface RouteItem {
 type PARAMS_TYPE = [string] | [string,object] | [string,object,string | object]
 
 let History: History
-let Routes: Record<string,string> = {}
+let NaturalRoutes: Array<RouteItem> = []
+let Routes: Record<string,RouteItem> = {}
 
 function stringify(search: string | object = {}): string{
     let params = ""
@@ -21,11 +23,12 @@ function stringify(search: string | object = {}): string{
 }
 
 function InjectNavRoutes<RouteProps extends RouteItem = any>(routes: Array<RouteProps> = []){
+    NaturalRoutes = NaturalRoutes.concat(routes)
     routes.map(item => {
         if(Routes.hasOwnProperty(item.name)){
             console.error(`route-name(${item.name})有重复，请重命名`)
         }else{
-            Routes[item.name] = item.path
+            Routes[item.name] = item
         }
     })
 }
@@ -36,18 +39,20 @@ export function InjectNavModel<RouteProps extends RouteItem = any>(history: Hist
 }
 
 const ReactRouterNav = {
+    // 获取路由名称
+    GetNameFromPath(pathname: string): string {
+        const serachResult = NaturalRoutes.filter(item => {
+            const { path , exact , strict } = item
+            const result  = matchPath(pathname,{path , exact , strict })
+            return result ? true : false
+        })
+        return serachResult.length ? serachResult[0].name : ""
+    },
     // 获取pathname
     GetPathFromName(name: string,params = {}) : string{
-        const path = Routes[name]
+        const { path } = Routes[name]
         if(path){
-            return path.replace(/\/:(\w+)/g,(_,k) => {
-                if(params.hasOwnProperty(k)){
-                    return '/' + params[k]
-                }else{
-                    console.error(`路由${path}缺少参数:${k}`)
-                    return '/'
-                }
-            })
+            return generatePath(path , params)
         }else{
             console.error(`没有找到${name}路由`)
             return '/'

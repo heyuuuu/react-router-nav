@@ -6,7 +6,8 @@
         "outDir": "./lib",
         "strict": true,
         "strictPropertyInitialization": false,
-        "suppressImplicitAnyIndexErrors": true
+        "suppressImplicitAnyIndexErrors": true,
+        "lib": ["ES2015","ES2016","DOM"]
     },
     "include": ["src"],
     "exclude": ["node_modules"]
