@@ -1,16 +1,32 @@
 import { History } from "history"
 import { matchPath , generatePath , RouteProps } from "react-router"
 
-interface RouteItem extends RouteProps {
-    name: string
-    path: string
+namespace ReactRouterNavModule {
+    export interface RouteItem extends RouteProps {
+        name: string
+        path: string
+    }
+    export type NameReference = string
+    export type ParamsReference = object
+    export type SearchReference = string | object
+    export interface Reference<ReturnType = void> {
+        (name: NameReference,params?: ParamsReference,search?: SearchReference): ReturnType
+    }
 }
- 
-type PARAMS_TYPE = [string] | [string,object] | [string,object,string | object]
+
+interface ReactRouterNav {
+    GetNameFromPath(pathname: string): string
+    GetPathFromName(name: ReactRouterNavModule.NameReference,params: ReactRouterNavModule.ParamsReference): string
+    GetHrefFromName: ReactRouterNavModule.Reference<string>
+    push: ReactRouterNavModule.Reference<string | void>
+    replace: ReactRouterNavModule.Reference<string | void>
+    pushCall: ReactRouterNavModule.Reference<() => void>
+    replaceCall: ReactRouterNavModule.Reference<() => void>
+}
 
 let History: History
-let NaturalRoutes: Array<RouteItem> = []
-let Routes: Record<string,RouteItem> = {}
+let NaturalRoutes: Array<ReactRouterNavModule.RouteItem> = []
+let Routes: Record<string,ReactRouterNavModule.RouteItem> = {}
 
 function stringify(search: string | object = {}): string{
     let params = ""
@@ -22,7 +38,7 @@ function stringify(search: string | object = {}): string{
     return params
 }
 
-function InjectNavRoutes<RouteProps extends RouteItem = any>(routes: Array<RouteProps> = []){
+function InjectNavRoutes<RouteProps extends ReactRouterNavModule.RouteItem = any>(routes: Array<RouteProps> = []){
     NaturalRoutes = NaturalRoutes.concat(routes)
     routes.map(item => {
         if(Routes.hasOwnProperty(item.name)){
@@ -33,14 +49,14 @@ function InjectNavRoutes<RouteProps extends RouteItem = any>(routes: Array<Route
     })
 }
 
-export function InjectNavModel<RouteProps extends RouteItem = any>(history: History,routes: Array<RouteProps> = []){
+export function InjectNavModel<RouteProps extends ReactRouterNavModule.RouteItem = any>(history: History,routes: Array<RouteProps> = []){
     History = history
     InjectNavRoutes(routes)
 }
 
-const ReactRouterNav = {
+const ReactRouterNav: ReactRouterNav = {
     // 获取路由名称
-    GetNameFromPath(pathname: string): string {
+    GetNameFromPath(pathname) {
         const serachResult = NaturalRoutes.filter(item => {
             const { path , exact , strict } = item
             const result  = matchPath(pathname,{path , exact , strict })
@@ -49,7 +65,7 @@ const ReactRouterNav = {
         return serachResult.length ? serachResult[0].name : ""
     },
     // 获取pathname
-    GetPathFromName(name: string,params = {}) : string{
+    GetPathFromName(name,params = {}){
         const { path } = Routes[name]
         if(path){
             return generatePath(path , params)
@@ -59,23 +75,23 @@ const ReactRouterNav = {
         }
     },
     // 获取完整路径
-    GetHrefFromName(...[name,params = {},search = {}]: PARAMS_TYPE): string | void{
+    GetHrefFromName(name,params = {},search = {}){
         const fullpath = this.GetPathFromName(name,params)
         const pathname = History.createHref({pathname: fullpath,search: stringify(search)})
         return window.location.origin + ('/' + pathname).replace(/\/+/g,'/')
     },
-    push(...[name,params = {},search = {}]: PARAMS_TYPE): void{
+    push(name,params = {},search = {}){
         const fullpath = this.GetPathFromName(name,params)
         History.push({pathname: fullpath,search: stringify(search)})
     },
-    replace(...[name,params = {},search = {}]: PARAMS_TYPE): void{
+    replace(name,params = {},search = {}){
         const fullpath = this.GetPathFromName(name,params)
         History.replace({pathname: fullpath,search: stringify(search)})
     },
-    pushCall(...[name,params = {},search = {}]: PARAMS_TYPE): () => void{
+    pushCall(name,params = {},search = {}){
         return () => this.push(name,params,search)
     },
-    replaceCall(...[name,params = {},search = {}]: PARAMS_TYPE): () => void{
+    replaceCall(name,params = {},search = {}){
         return () => this.replace(name,params,search)
     }
 }

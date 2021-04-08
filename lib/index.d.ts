@@ -1,19 +1,27 @@
 import { History } from "history";
 import { RouteProps } from "react-router";
-interface RouteItem extends RouteProps {
-    name: string;
-    path: string;
+declare namespace ReactRouterNavModule {
+    interface RouteItem extends RouteProps {
+        name: string;
+        path: string;
+    }
+    type NameReference = string;
+    type ParamsReference = object;
+    type SearchReference = string | object;
+    interface Reference<ReturnType = void> {
+        (name: NameReference, params?: ParamsReference, search?: SearchReference): ReturnType;
+    }
 }
-declare type PARAMS_TYPE = [string] | [string, object] | [string, object, string | object];
-declare let History: History;
-export declare function InjectNavModel<RouteProps extends RouteItem = any>(history: History, routes?: Array<RouteProps>): void;
-declare const ReactRouterNav: {
+interface ReactRouterNav {
     GetNameFromPath(pathname: string): string;
-    GetPathFromName(name: string, params?: {}): string;
-    GetHrefFromName(...[name, params, search]: PARAMS_TYPE): string | void;
-    push(...[name, params, search]: PARAMS_TYPE): void;
-    replace(...[name, params, search]: PARAMS_TYPE): void;
-    pushCall(...[name, params, search]: PARAMS_TYPE): () => void;
-    replaceCall(...[name, params, search]: PARAMS_TYPE): () => void;
-};
+    GetPathFromName(name: ReactRouterNavModule.NameReference, params: ReactRouterNavModule.ParamsReference): string;
+    GetHrefFromName: ReactRouterNavModule.Reference<string>;
+    push: ReactRouterNavModule.Reference<string | void>;
+    replace: ReactRouterNavModule.Reference<string | void>;
+    pushCall: ReactRouterNavModule.Reference<() => void>;
+    replaceCall: ReactRouterNavModule.Reference<() => void>;
+}
+declare let History: History;
+export declare function InjectNavModel<RouteProps extends ReactRouterNavModule.RouteItem = any>(history: History, routes?: Array<RouteProps>): void;
+declare const ReactRouterNav: ReactRouterNav;
 export default ReactRouterNav;
