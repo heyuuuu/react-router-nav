@@ -25,8 +25,8 @@ interface ReactRouterNav {
 }
 
 let History: History
-let NaturalRoutes: Array<ReactRouterNavModule.RouteItem> = []
-let Routes: Record<string,ReactRouterNavModule.RouteItem> = {}
+const NaturalRoutes: Array<ReactRouterNavModule.RouteItem> = []
+const Routes: Record<string,ReactRouterNavModule.RouteItem> = {}
 
 function stringify(search: string | object = {}): string{
     let params = ""
@@ -38,18 +38,18 @@ function stringify(search: string | object = {}): string{
     return params
 }
 
-function InjectNavRoutes<RouteProps extends ReactRouterNavModule.RouteItem = any>(routes: Array<RouteProps> = []){
-    NaturalRoutes = NaturalRoutes.concat(routes)
+export function InjectNavRoutes(routes: Array<ReactRouterNavModule.RouteItem> = []){
     routes.map(item => {
         if(Routes.hasOwnProperty(item.name)){
             console.error(`route-name(${item.name})有重复，请重命名`)
         }else{
+            NaturalRoutes.push(item)
             Routes[item.name] = item
         }
     })
 }
 
-export function InjectNavModel<RouteProps extends ReactRouterNavModule.RouteItem = any>(history: History,routes: Array<RouteProps> = []){
+export function InjectNavModel(history: History,routes: Array<ReactRouterNavModule.RouteItem> = []){
     History = history
     InjectNavRoutes(routes)
 }

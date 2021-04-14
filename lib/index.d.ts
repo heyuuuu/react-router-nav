@@ -22,6 +22,7 @@ interface ReactRouterNav {
     replaceCall: ReactRouterNavModule.Reference<() => void>;
 }
 declare let History: History;
-export declare function InjectNavModel<RouteProps extends ReactRouterNavModule.RouteItem = any>(history: History, routes?: Array<RouteProps>): void;
+export declare function InjectNavRoutes(routes?: Array<ReactRouterNavModule.RouteItem>): void;
+export declare function InjectNavModel(history: History, routes?: Array<ReactRouterNavModule.RouteItem>): void;
 declare const ReactRouterNav: ReactRouterNav;
 export default ReactRouterNav;
