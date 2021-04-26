@@ -8,9 +8,7 @@ declare namespace ReactRouterNavModule {
     type NameReference = string;
     type ParamsReference = object;
     type SearchReference = string | object;
-    interface Reference<ReturnType = void> {
-        (name: NameReference, params?: ParamsReference, search?: SearchReference): ReturnType;
-    }
+    type Reference<ReturnType = void> = (name: NameReference, params?: ParamsReference, search?: SearchReference) => ReturnType;
 }
 interface ReactRouterNav {
     GetNameFromPath(pathname: string): string;

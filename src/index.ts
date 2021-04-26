@@ -9,14 +9,12 @@ namespace ReactRouterNavModule {
     export type NameReference = string
     export type ParamsReference = object
     export type SearchReference = string | object
-    export interface Reference<ReturnType = void> {
-        (name: NameReference,params?: ParamsReference,search?: SearchReference): ReturnType
-    }
+    export type Reference<ReturnType = void> = (name: NameReference,params?: ParamsReference,search?: SearchReference) => ReturnType
 }
 
 interface ReactRouterNav {
     GetNameFromPath(pathname: string): string
-    GetPathFromName(name: ReactRouterNavModule.NameReference,params: ReactRouterNavModule.ParamsReference): string
+    GetPathFromName(name: ReactRouterNavModule.NameReference,params?: ReactRouterNavModule.ParamsReference): string
     GetHrefFromName: ReactRouterNavModule.Reference<string>
     push: ReactRouterNavModule.Reference<string | void>
     replace: ReactRouterNavModule.Reference<string | void>
