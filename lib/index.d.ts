@@ -12,7 +12,7 @@ declare namespace ReactRouterNavModule {
 }
 interface ReactRouterNav {
     GetNameFromPath(pathname: string): string;
-    GetPathFromName(name: ReactRouterNavModule.NameReference, params: ReactRouterNavModule.ParamsReference): string;
+    GetPathFromName(name: ReactRouterNavModule.NameReference, params?: ReactRouterNavModule.ParamsReference): string;
     GetHrefFromName: ReactRouterNavModule.Reference<string>;
     push: ReactRouterNavModule.Reference<string | void>;
     replace: ReactRouterNavModule.Reference<string | void>;
