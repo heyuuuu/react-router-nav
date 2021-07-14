@@ -1,5 +1,6 @@
 import { History } from "history"
 import { matchPath , generatePath , RouteProps } from "react-router"
+import WrapCreateNav from "./index2"
 
 namespace ReactRouterNavModule {
     export interface RouteItem extends RouteProps {
@@ -36,7 +37,7 @@ function stringify(search: string | object = {}): string{
     return params
 }
 
-export function InjectNavRoutes(routes: Array<ReactRouterNavModule.RouteItem> = []){
+function InjectNavRoutes(routes: Array<ReactRouterNavModule.RouteItem> = []){
     routes.map(item => {
         if(Routes.hasOwnProperty(item.name)){
             console.error(`route-name(${item.name})有重复，请重命名`)
@@ -47,7 +48,7 @@ export function InjectNavRoutes(routes: Array<ReactRouterNavModule.RouteItem> = 
     })
 }
 
-export function InjectNavModel(history: History,routes: Array<ReactRouterNavModule.RouteItem> = []){
+function InjectNavModel(history: History,routes: Array<ReactRouterNavModule.RouteItem> = []){
     History = history
     InjectNavRoutes(routes)
 }
@@ -95,3 +96,9 @@ const ReactRouterNav: ReactRouterNav = {
 }
 
 export default ReactRouterNav
+
+export {
+    WrapCreateNav,
+    InjectNavModel,
+    InjectNavRoutes
+}

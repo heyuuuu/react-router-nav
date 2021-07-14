@@ -1,5 +1,6 @@
 import { History } from "history";
 import { RouteProps } from "react-router";
+import WrapCreateNav from "./index2";
 declare namespace ReactRouterNavModule {
     interface RouteItem extends RouteProps {
         name: string;
@@ -20,7 +21,8 @@ interface ReactRouterNav {
     replaceCall: ReactRouterNavModule.Reference<() => void>;
 }
 declare let History: History;
-export declare function InjectNavRoutes(routes?: Array<ReactRouterNavModule.RouteItem>): void;
-export declare function InjectNavModel(history: History, routes?: Array<ReactRouterNavModule.RouteItem>): void;
+declare function InjectNavRoutes(routes?: Array<ReactRouterNavModule.RouteItem>): void;
+declare function InjectNavModel(history: History, routes?: Array<ReactRouterNavModule.RouteItem>): void;
 declare const ReactRouterNav: ReactRouterNav;
 export default ReactRouterNav;
+export { WrapCreateNav, InjectNavModel, InjectNavRoutes };
