@@ -1,3 +1,5 @@
+/// <reference path="../types/index.d.ts" />
+
 import { History } from "history"
 import { generatePath } from "react-router"
 import { Tools } from "./utils"

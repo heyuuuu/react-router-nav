@@ -1,3 +1,4 @@
+/// <reference path="../types/index.d.ts" />
 import { History } from "history";
 declare function WrapCreateNav<RoutesNameType extends string, ExtraType extends unknown>(routes: InjectNavRouteProps<RoutesNameType, ExtraType>): {
     config: Record<RoutesNameType, RouteItem<ExtraType>>;
