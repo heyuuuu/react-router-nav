@@ -35,14 +35,15 @@ function WrapCreateNav<RoutesNameType extends string, ExtraType extends unknown>
 	}
 
 	// 注入路由管理
-	function injectMode(history: History) {
-		history = history
+	function injectMode(currentHistory: History) {
+		history = currentHistory
 	}
 
 	// 合成url
 	function createPath(name: RoutesNameType, params: ParamsType = {},serach?: SearchType){
 		const path = generatePath(config[name].path, params)
-		return [path,'?',Tools.stringify(serach)].join('')
+		const serachStr = Tools.stringify(serach)
+		return serachStr ? `${path}?${serachStr}`: path
 	}
 
 	// push
