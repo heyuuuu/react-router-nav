@@ -2,6 +2,7 @@
 import { History } from "history";
 declare function WrapCreateNav<RoutesNameType extends string, ExtraType extends unknown>(routes: InjectNavRouteProps<RoutesNameType, ExtraType>): {
     config: Record<RoutesNameType, RouteItem<ExtraType>>;
+    routeTable: Record<RoutesNameType, string>;
     injectMode: (history: History) => void;
     createPath: (name: RoutesNameType, params?: ParamsType, serach?: SearchType | undefined) => string;
     push: (params: RoutesNameType | LocationDescriptorObject<RoutesNameType>) => void;
