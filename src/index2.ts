@@ -8,6 +8,8 @@ function WrapCreateNav<RoutesNameType extends string, ExtraType extends unknown>
 	
 	// @ts-ignore
 	const config: Record<RoutesNameType, RouteItem<ExtraType>> = {}
+	// @ts-ignore
+	const routeTable: Record<RoutesNameType, string> = {}
 
 	let history: History
 
@@ -22,6 +24,7 @@ function WrapCreateNav<RoutesNameType extends string, ExtraType extends unknown>
 				}else{
 					const path = parentPath + item.path
 					config[name] = {path: path, extra: item.extra}
+					routeTable[name] = path
 					if(item.routes) {
 						combination(item.routes, name, path)
 					}
@@ -85,6 +88,7 @@ function WrapCreateNav<RoutesNameType extends string, ExtraType extends unknown>
 
 	return {
 		config,
+		routeTable,
 		injectMode,
 		createPath,
 		push,
