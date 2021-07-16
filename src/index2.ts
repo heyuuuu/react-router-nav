@@ -50,11 +50,11 @@ function WrapCreateNav<RoutesNameType extends string, ExtraType extends unknown>
 	function push(params: RoutesNameType | LocationDescriptorObject<RoutesNameType>) {
 		if(history) {
 			if(typeof params === "string") {
-				history.replace(params)
+				history.push(routeTable[params])
 			} else {
 				const pathname = createPath(params.name, params.params)
 				const search = Tools.stringify(params.search)
-				history.replace({
+				history.push({
 					pathname,
 					search,
 					state: params.state
@@ -66,7 +66,7 @@ function WrapCreateNav<RoutesNameType extends string, ExtraType extends unknown>
 	function replace(params: RoutesNameType | LocationDescriptorObject<RoutesNameType>) {
 		if(history) {
 			if(typeof params === "string") {
-				history.replace(params)
+				history.replace(routeTable[params])
 			} else {
 				const pathname = createPath(params.name, params.params)
 				const search = Tools.stringify(params.search)
