@@ -4,6 +4,10 @@ import { History } from "history"
 import { generatePath } from "react-router"
 import { Tools } from "./utils"
 
+interface IController {
+	history?: History
+}
+
 function WrapCreateNav<RoutesNameType extends string, ExtraType extends unknown>(routes: InjectNavRouteProps<RoutesNameType, ExtraType> ) {
 	
 	// @ts-ignore
@@ -11,7 +15,7 @@ function WrapCreateNav<RoutesNameType extends string, ExtraType extends unknown>
 	// @ts-ignore
 	const routeTable: Record<RoutesNameType, string> = {}
 
-	let history: History
+	const controller: IController = {}
 
 	injectRoutes(routes as any)
 
@@ -36,7 +40,7 @@ function WrapCreateNav<RoutesNameType extends string, ExtraType extends unknown>
 
 	// 注入路由管理
 	function injectMode(currentHistory: History) {
-		history = currentHistory
+		controller.history = currentHistory
 	}
 
 	// 合成url
@@ -48,6 +52,7 @@ function WrapCreateNav<RoutesNameType extends string, ExtraType extends unknown>
 
 	// push
 	function push(params: RoutesNameType | LocationDescriptorObject<RoutesNameType>) {
+		const history = controller.history
 		if(history) {
 			if(typeof params === "string") {
 				history.push(routeTable[params])
@@ -64,6 +69,7 @@ function WrapCreateNav<RoutesNameType extends string, ExtraType extends unknown>
 	}
 	// replace
 	function replace(params: RoutesNameType | LocationDescriptorObject<RoutesNameType>) {
+		const history = controller.history
 		if(history) {
 			if(typeof params === "string") {
 				history.replace(routeTable[params])
@@ -86,8 +92,16 @@ function WrapCreateNav<RoutesNameType extends string, ExtraType extends unknown>
 	function replaceCall(params: RoutesNameType | LocationDescriptorObject<RoutesNameType>) {
 		return () => replace(params)
 	}
+	// ready
+	function ready(callback: (history: History) => void){
+		if(controller.history) {
+			callback(controller.history)
+		}
+		return controller.history
+	}
 
 	return {
+		ready,
 		config,
 		routeTable,
 		injectMode,
