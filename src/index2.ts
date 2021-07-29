@@ -64,7 +64,7 @@ function WrapCreateNav<RoutesNameType extends string, ExtraType extends unknown>
 					}
 				}
 			})
-			if(result.current) {
+			if(result.current.name) {
 				return result
 			}
 		}
