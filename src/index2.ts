@@ -1,7 +1,7 @@
 /// <reference path="../types/index.d.ts" />
 
 import { History } from "history"
-import { generatePath } from "react-router"
+import { generatePath , match , matchPath } from "react-router"
 import { Tools } from "./utils"
 
 interface IController {
@@ -43,9 +43,36 @@ function WrapCreateNav<RoutesNameType extends string, ExtraType extends unknown>
 		controller.history = currentHistory
 	}
 
+	// 获取当前路径
+	function GetRoutePunctuation<Params = any>(H = controller.history) {
+		const result: {
+			current?: ({name: RoutesNameType} & match<Params>)
+			path: ({name: RoutesNameType} & match<Params>)[]
+		} = {
+			path: []
+		}
+		if(H) {
+			const pathname = H.location.pathname
+			Object.keys(routeTable).forEach(name => {
+				const data = matchPath<Params>(pathname,{path: routeTable[name]})
+				if(data !== null) {
+					const item = {...data, name: name as RoutesNameType}
+					result.path.push(item)
+					if(data.isExact) {
+						result.current = item
+					}
+				}
+			})
+			if(result.current) {
+				return result
+			}
+		}
+	}
+
 	// 合成url
 	function createPath(name: RoutesNameType, params: ParamsType = {},serach?: SearchType){
-		const path = generatePath(config[name].path, params)
+		const currentPamars = GetRoutePunctuation()?.current!.params || {}
+		const path = generatePath(routeTable[name], {...currentPamars, ...params})
 		const serachStr = Tools.stringify(serach)
 		return serachStr ? `${path}?${serachStr}`: path
 	}
@@ -92,6 +119,7 @@ function WrapCreateNav<RoutesNameType extends string, ExtraType extends unknown>
 	function replaceCall(params: RoutesNameType | LocationDescriptorObject<RoutesNameType>) {
 		return () => replace(params)
 	}
+
 	// ready
 	function ready(callback: (history: History) => void){
 		if(controller.history) {
@@ -109,7 +137,8 @@ function WrapCreateNav<RoutesNameType extends string, ExtraType extends unknown>
 		push,
 		replace,
 		pushCall,
-		replaceCall
+		replaceCall,
+		GetRoutePunctuation
 	}
 }
 
