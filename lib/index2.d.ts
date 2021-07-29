@@ -12,9 +12,9 @@ declare function WrapCreateNav<RoutesNameType extends string, ExtraType extends 
     pushCall: (params: RoutesNameType | LocationDescriptorObject<RoutesNameType>) => () => void;
     replaceCall: (params: RoutesNameType | LocationDescriptorObject<RoutesNameType>) => () => void;
     GetRoutePunctuation: <Params = any>(H?: History<unknown> | undefined) => {
-        current?: ({
+        current: {
             name: RoutesNameType;
-        } & match<Params>) | undefined;
+        } & match<Params>;
         path: ({
             name: RoutesNameType;
         } & match<Params>)[];

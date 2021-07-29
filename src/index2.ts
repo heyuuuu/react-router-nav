@@ -46,9 +46,10 @@ function WrapCreateNav<RoutesNameType extends string, ExtraType extends unknown>
 	// 获取当前路径
 	function GetRoutePunctuation<Params = any>(H = controller.history) {
 		const result: {
-			current?: ({name: RoutesNameType} & match<Params>)
+			current: {name: RoutesNameType} & match<Params>
 			path: ({name: RoutesNameType} & match<Params>)[]
 		} = {
+			current: {} as any,
 			path: []
 		}
 		if(H) {
