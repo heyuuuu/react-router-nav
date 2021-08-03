@@ -9,7 +9,10 @@ interface IController {
 }
 type TName<Props> = Props | LocationDescriptorObject<Props>
 type TPath<RoutesNameType,Props> = {name: RoutesNameType} & match<Props>
-type TParamsProps<RoutesNameType> = [TName<RoutesNameType>, ParamsType | undefined, SearchType | undefined]
+type TParamsProps<RoutesNameType> =  
+	[TName<RoutesNameType>] | 
+	[TName<RoutesNameType>, ParamsType | undefined] |
+	[TName<RoutesNameType>, ParamsType | undefined, SearchType | undefined]
 
 function WrapCreateNav<RoutesNameType extends string, ExtraType extends unknown>(routes: InjectNavRouteProps<RoutesNameType, ExtraType> ) {
 	
@@ -110,7 +113,7 @@ function WrapCreateNav<RoutesNameType extends string, ExtraType extends unknown>
 	}
 
 	// push
-	function push(...[wildcard,params,search]: TParamsProps<RoutesNameType>) {
+	function push(...[wildcard,params = {},search = {}]: TParamsProps<RoutesNameType>) {
 		const history = controller.history
 		if(history) {
 			history.push(transfromName(wildcard,params,search))
