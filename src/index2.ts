@@ -7,6 +7,9 @@ import { Tools } from "./utils"
 interface IController {
 	history?: History
 }
+type TName<Props> = Props | LocationDescriptorObject<Props>
+type TPath<RoutesNameType,Props> = {name: RoutesNameType} & match<Props>
+type TParamsProps<RoutesNameType> = [TName<RoutesNameType>, ParamsType | undefined, SearchType | undefined]
 
 function WrapCreateNav<RoutesNameType extends string, ExtraType extends unknown>(routes: InjectNavRouteProps<RoutesNameType, ExtraType> ) {
 	
@@ -46,8 +49,8 @@ function WrapCreateNav<RoutesNameType extends string, ExtraType extends unknown>
 	// 获取当前路径
 	function GetRoutePunctuation<Params = any>(H = controller.history) {
 		const result: {
-			current: {name: RoutesNameType} & match<Params>
-			path: ({name: RoutesNameType} & match<Params>)[]
+			current: TPath<RoutesNameType,Params>
+			path: TPath<RoutesNameType,Params>[]
 		} = {
 			current: {} as any,
 			path: []
@@ -70,55 +73,63 @@ function WrapCreateNav<RoutesNameType extends string, ExtraType extends unknown>
 		}
 	}
 
+	// 合成pathname
+	function createPathname(name: RoutesNameType, params: ParamsType = {}) {
+		const path = routeTable[name]
+		const currentPamars = GetRoutePunctuation()?.current.params || {}
+		const pathname = generatePath(path, {...currentPamars, ...params})
+		return pathname
+	}
+
 	// 合成url
 	function createPath(name: RoutesNameType, params: ParamsType = {},serach?: SearchType){
-		const currentPamars = GetRoutePunctuation()?.current!.params || {}
-		const path = generatePath(routeTable[name], {...currentPamars, ...params})
+		const pathname = createPathname(name, params)
 		const serachStr = Tools.stringify(serach)
-		return serachStr ? `${path}?${serachStr}`: path
+		return serachStr ? `${pathname}?${serachStr}`: pathname
+	}
+
+	// 转换参数
+	function transfromName(...[wildcard,params = {},search]: TParamsProps<RoutesNameType>): History.LocationDescriptor {
+		if(typeof wildcard === "string") {
+			const pathname = createPathname(wildcard, params)
+			const searchStr = Tools.stringify(search)
+			return {
+				pathname,
+				search: searchStr
+			}
+		}else{
+			const { name , params , search , state } = wildcard
+			const pathname = createPath(name, params)
+			const searchStr = Tools.stringify(search)
+			return {
+				pathname,
+				state,
+				search: searchStr
+			}
+		}
 	}
 
 	// push
-	function push(params: RoutesNameType | LocationDescriptorObject<RoutesNameType>) {
+	function push(...[wildcard,params,search]: TParamsProps<RoutesNameType>) {
 		const history = controller.history
 		if(history) {
-			if(typeof params === "string") {
-				history.push(routeTable[params])
-			} else {
-				const pathname = createPath(params.name, params.params)
-				const search = Tools.stringify(params.search)
-				history.push({
-					pathname,
-					search,
-					state: params.state
-				})
-			}
+			history.push(transfromName(wildcard,params,search))
 		}
 	}
 	// replace
-	function replace(params: RoutesNameType | LocationDescriptorObject<RoutesNameType>) {
+	function replace(...[wildcard,params,search]: TParamsProps<RoutesNameType>) {
 		const history = controller.history
 		if(history) {
-			if(typeof params === "string") {
-				history.replace(routeTable[params])
-			} else {
-				const pathname = createPath(params.name, params.params)
-				const search = Tools.stringify(params.search)
-				history.replace({
-					pathname,
-					search,
-					state: params.state
-				})
-			}
+			history.replace(transfromName(wildcard,params,search))
 		}
 	}
 	// pushCall
-	function pushCall(params: RoutesNameType | LocationDescriptorObject<RoutesNameType>) {
-		return () => push(params)
+	function pushCall(...[wildcard,params,search]: TParamsProps<RoutesNameType>) {
+		return () => push(wildcard,params,search)
 	}
 	// replaceCall
-	function replaceCall(params: RoutesNameType | LocationDescriptorObject<RoutesNameType>) {
-		return () => replace(params)
+	function replaceCall(...[wildcard,params,search]: TParamsProps<RoutesNameType>) {
+		return () => replace(wildcard,params,search)
 	}
 
 	// ready
