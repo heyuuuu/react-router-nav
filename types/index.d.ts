@@ -1,24 +1,20 @@
-type KeyTypes<T, K> = 
-	T extends readonly unknown[] ? KeyTypes<T[number], K> :
-	T extends Record<string, unknown> ? { [P in keyof T]: P extends K ? T[P] : KeyTypes<T[P], K> }[keyof T] : never
+declare namespace NavSpace {
 
-type ParamsType = Record<string, string|number>
+	type CONSTANT = string | number | symbol
 
-type SearchType = string | ParamsType
-
-interface RouteItem<E = unknown> {
-	path: string
-	extra?: E
-}
-
-type InjectNavRouteProps<RoutesNameType = string,E = unknown> = Array<{
-	name: RoutesNameType
-	routes?: InjectNavRouteProps<RoutesNameType,E>
-} & RouteItem<E>>
-
-interface LocationDescriptorObject<Name> {
-	state?: unknown
-	name: Name,
-	params?: ParamsType
-	search?: SearchType
+	type OBJECT<T = unknown> = Record<CONSTANT, T>
+	interface Props<ActionName = unknown, ExtraProps = unknown> {
+		name: ActionName
+		path: string
+		params?: ExtraProps
+	}
+	
+	interface NavigationProps<ActionName> {
+		name: ActionName
+		params?: OBJECT
+		search?: OBJECT | string
+		state?: OBJECT
+	}
+	
+	type NavigationParams<ActionName> = [ActionName | NavigationProps<ActionName>, OBJECT?, (OBJECT|string)?, OBJECT?]
 }
