@@ -103,32 +103,10 @@ function reactRouterNav<
 		}
 	}
 
-	// 获取路由名称
-	function GetRouteName(action: HistoryName | H.History, config?: {exact?: boolean, strict?: boolean}) {
-		const history = typeof action === "string" ? routeStack[action] : action
-		if(history) {
-			const currentRouteConfig = distributionData.RouteList.find(item => 
-				matchPath(history.location.pathname, {
-					path: item.path,
-					exact: config?.exact,
-					strict: config?.strict
-				})
-			)
-			return <NavigationProps<ActionName>>currentRouteConfig
-		}else {
-			return 
-		}
-	}
-
-	function useRouter() {
+	function useRouterNav() {
 		const currentHistory = useHistory()
 		const nav = createRouteNav(currentHistory)
-		const currentRoute = GetRouteName(currentHistory)
-		return {
-			nav,
-			currentRoute,
-			currentHistory,
-		}
+		return nav
 	}
 
 	// 添加路由栈
@@ -156,8 +134,7 @@ function reactRouterNav<
 		createPath, // 创建路径
 		createFullPath, // 创建完整路径
 		createRouteNav, // 创建路由导航
-		GetRouteName, // 获取路由名称
-		useRouter, // 基于hooks使用路由导航
+		useRouterNav, // 基于hooks使用路由导航
 		routeStack, // 获取当前路由栈中所有history
 		addHistory, // 添加一个history
 		removeHistory, // 移除一个histroy
