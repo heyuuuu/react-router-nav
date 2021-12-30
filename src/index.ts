@@ -66,10 +66,10 @@ function reactRouterNav<
 	}
 
 	// 生成路径
-	const createPath = (params: Params, location?: boolean | {
+	function createPath(params: Params, location?: boolean | {
 		protocol?: string
 		host?: string
-	}) => {
+	}) {
 		const { path, query } = computePath(params)
 		const pathname = query ? path + "?" + query : path
 		if(location) {
