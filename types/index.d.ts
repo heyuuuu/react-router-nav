@@ -11,10 +11,15 @@ declare namespace NavSpace {
 	
 	interface NavigationProps<ActionName> {
 		name: ActionName
-		params?: OBJECT
+		params?: Object
 		search?: OBJECT | string
 		state?: OBJECT
 	}
 	
-	type NavigationParams<ActionName> = [ActionName | NavigationProps<ActionName>, OBJECT?, (OBJECT|string)?, OBJECT?]
+	type NavigationParams<ActionName> = [
+		ActionName | NavigationProps<ActionName>,
+		OBJECT?,
+		( OBJECT | string )?,
+		OBJECT?
+	]
 }

@@ -2,41 +2,25 @@ import * as H from "history"
 import { useEffect } from "react"
 import { useHistory, generatePath, matchPath } from "react-router-dom"
 
-interface Props<ActionName = unknown, ExtraProps = unknown> {
-	name: ActionName
-	path: string
-	params?: ExtraProps
-}
-
-interface NavigationProps<ActionName> {
-	name: ActionName
-	params?: NavSpace.OBJECT
-	search?: NavSpace.OBJECT | string
-	state?: NavSpace.OBJECT
-}
-
-type NavigationParams<ActionName> = [
-    ActionName | NavigationProps<ActionName>,
-    NavSpace.OBJECT?,
-    (NavSpace.OBJECT | string)?,
-    NavSpace.OBJECT?
-]
-
 function reactRouterNav<
-	HistoryName extends string = string,
-	ExtraProps extends NavSpace.OBJECT = NavSpace.OBJECT,
-	ActionName extends string = string
->(list: Readonly<Props<ActionName, ExtraProps>[]>) {
+	HistoryName extends string,
+	ActionName extends string,
+	ExtraProps extends NavSpace.OBJECT,
+>(list: NavSpace.Props<ActionName, ExtraProps>[], historyNames: HistoryName[]) {
+
+	type Item = NavSpace.Props<ActionName, ExtraProps>
+	type Props = NavSpace.NavigationParams<ActionName>
+
 	// 本地存储路由栈
-	const routeStack = <Record<HistoryName, H.History>>{}
+	const routeStack = {} as Record<HistoryName, H.History>
 	// 暂存变量
 	const distributionData = {
 		// 路由配置列表
-		RouteList: <Props[]>[],
+		RouteList: [] as Item[],
 		// 路由路由映射
-		RoutePathMaps: <Record<ActionName, string>>{},
+		RoutePathMaps: {} as Record<ActionName, string>,
 		// 路由配置映射
-		RouteNameConfig: <Record<ActionName, Props>>{},
+		RouteNameConfig: {} as Record<ActionName, Item>,
 
 	}
 	// 转换路径
@@ -45,26 +29,25 @@ function reactRouterNav<
 			const prevPath = distributionData.RoutePathMaps[name] || ""
 			if(prevPath) {
 				const calculatePath = prevPath.replace(/\{([\w_]+)\}/g, (_, name) => mergePath(name))
-				distributionData.RoutePathMaps[name] = calculatePath
-				return calculatePath
+				return distributionData.RoutePathMaps[name] = calculatePath
 			} else {
 				return prevPath
 			}
 		}
 		list.forEach(item => {
-			distributionData.RoutePathMaps[<ActionName>item.name] = item.path
-			distributionData.RouteNameConfig[<ActionName>item.name] = item
+			distributionData.RoutePathMaps[item.name] = item.path
+			distributionData.RouteNameConfig[item.name] = item
 			distributionData.RouteList.push(item)
 		})
-		distributionData.RouteList.forEach(item => item.path = mergePath(<ActionName>item.name))
+		distributionData.RouteList.forEach(item => item.path = mergePath(item.name))
 	}
 
 	// 计算路径
-	const computePath = (...[action, params, search = "", state]: NavigationParams<ActionName>) => {
+	function computePath(...[action, params, search = "", state]: Props) {
 		const config = typeof action === "string"
 			? {name: action, params, search, state}
 			: action
-		const path = generatePath(distributionData.RoutePathMaps[config.name], <any>params)
+		const path = generatePath(distributionData.RoutePathMaps[config.name], params as any)
 		const query = typeof search === "string" 
 			? search
 			: Object.keys(search).map(name => `${name}=${search[name]}`).join("&")
@@ -72,12 +55,12 @@ function reactRouterNav<
 	}
 
 	// 生成路径
-	const createPath = (...props: NavigationParams<ActionName>) => {
+	const createPath = (...props: Props) => {
 		return computePath(...props).path
 	}
 
 	// 生成完整路径
-	const createFullPath = (...props: NavigationParams<ActionName>) => {
+	const createFullPath = (...props: Props) => {
 		const { path, query } = computePath(...props)
 		return query ? path + "?" + query : path
 	}
@@ -87,12 +70,12 @@ function reactRouterNav<
 		
 		const currentHistory = typeof action === "string" ? routeStack[action] : action
 
-		const push = (...params: NavigationParams<ActionName>) => {
+		const push = (...params: Props) => {
 			const { path, query, state } = computePath(...params)
 			currentHistory?.push({pathname: path, search: query, state})
 		}
 
-		const replace = (...params: NavigationParams<ActionName>) => {
+		const replace = (...params: Props) => {
 			const { path, query, state } = computePath(...params)
 			currentHistory?.replace({pathname: path, search: query, state})
 		}
@@ -105,8 +88,7 @@ function reactRouterNav<
 
 	function useRouterNav() {
 		const currentHistory = useHistory()
-		const nav = createRouteNav(currentHistory)
-		return nav
+		return createRouteNav(currentHistory)
 	}
 
 	// 添加路由栈
@@ -144,5 +126,9 @@ function reactRouterNav<
 		RouteNameConfig: distributionData.RouteNameConfig,
 	}
 }
+
+reactRouterNav([
+	{name: "home", path: "/home"}
+], ["wuming"]).createRouteNav("wuming")
 
 export default reactRouterNav
