@@ -1,15 +1,15 @@
 import * as H from "history"
 import { useEffect } from "react"
-import { useHistory, generatePath, matchPath } from "react-router-dom"
+import { useHistory, generatePath } from "react-router-dom"
 
 function reactRouterNav<
 	HistoryName extends string,
 	ActionName extends string,
 	ExtraProps extends NavSpace.OBJECT,
->(list: NavSpace.Props<ActionName, ExtraProps>[], historyNames: HistoryName[]) {
+>(list: NavSpace.Props<ActionName, ExtraProps>[], historyNames?: HistoryName[]) {
 
 	type Item = NavSpace.Props<ActionName, ExtraProps>
-	type Props = NavSpace.NavigationParams<ActionName>
+	type Params = NavSpace.NavigationParams<ActionName>
 
 	// 本地存储路由栈
 	const routeStack = {} as Record<HistoryName, H.History>
@@ -21,7 +21,6 @@ function reactRouterNav<
 		RoutePathMaps: {} as Record<ActionName, string>,
 		// 路由配置映射
 		RouteNameConfig: {} as Record<ActionName, Item>,
-
 	}
 	// 转换路径
 	{
@@ -42,12 +41,24 @@ function reactRouterNav<
 		distributionData.RouteList.forEach(item => item.path = mergePath(item.name))
 	}
 
+	// 解析入参
+	function transformParams(action: Params): NavSpace.NavigationProps<ActionName> {
+		if(action instanceof Array) {
+			const [name, params, search, state] = action
+			return { name, params, search, state }
+		}
+		if(typeof action === "object") {
+			return action
+		}
+		return {
+			name: action
+		}
+	}
+
 	// 计算路径
-	function computePath(...[action, params, search = "", state]: Props) {
-		const config = typeof action === "string"
-			? {name: action, params, search, state}
-			: action
-		const path = generatePath(distributionData.RoutePathMaps[config.name], params as any)
+	function computePath(props: Params) {
+		const { name, params, search = '', state } = transformParams(props)
+		const path = generatePath(distributionData.RoutePathMaps[name], params as any)
 		const query = typeof search === "string" 
 			? search
 			: Object.keys(search).map(name => `${name}=${search[name]}`).join("&")
@@ -55,37 +66,51 @@ function reactRouterNav<
 	}
 
 	// 生成路径
-	const createPath = (...props: Props) => {
-		return computePath(...props).path
+	const createPath = (params: Params, location?: boolean | {
+		protocol?: string
+		host?: string
+	}) => {
+		const { path, query } = computePath(params)
+		const pathname = query ? path + "?" + query : path
+		if(location) {
+			const { 
+				protocol = window.location.protocol,
+				host = window.location.host 
+			} = typeof location === "object" ? location : {}
+			return protocol + host + pathname
+		} else {
+			return pathname
+		}
 	}
 
-	// 生成完整路径
-	const createFullPath = (...props: Props) => {
-		const { path, query } = computePath(...props)
-		return query ? path + "?" + query : path
-	}
-
-	// 导航
+	// 创建nav
 	function createRouteNav(action: HistoryName | H.History) {
 		
 		const currentHistory = typeof action === "string" ? routeStack[action] : action
 
-		const push = (...params: Props) => {
-			const { path, query, state } = computePath(...params)
+		const push = (params: Params) => {
+			const { path, query, state } = computePath(params)
 			currentHistory?.push({pathname: path, search: query, state})
 		}
 
-		const replace = (...params: Props) => {
-			const { path, query, state } = computePath(...params)
+		const replace = (params: Params) => {
+			const { path, query, state } = computePath(params)
 			currentHistory?.replace({pathname: path, search: query, state})
 		}
 
+		const callPush = (params: Params) => push(params)
+
+		const callReplace = (params: Params) => replace(params)
+
 		return {
 			push,
-			replace
+			callPush,
+			replace,
+			callReplace
 		}
 	}
 
+	// hooks
 	function useRouterNav() {
 		const currentHistory = useHistory()
 		return createRouteNav(currentHistory)
@@ -114,21 +139,16 @@ function reactRouterNav<
 
 	return {
 		createPath, // 创建路径
-		createFullPath, // 创建完整路径
 		createRouteNav, // 创建路由导航
 		useRouterNav, // 基于hooks使用路由导航
 		routeStack, // 获取当前路由栈中所有history
 		addHistory, // 添加一个history
 		removeHistory, // 移除一个histroy
         useInjectHistory, // 使用hooks快速注入一个路由栈
-		RouteList: distributionData.RouteList,
-		RoutePathMaps: distributionData.RoutePathMaps,
-		RouteNameConfig: distributionData.RouteNameConfig,
+		routeList: distributionData.RouteList,
+		routePathMaps: distributionData.RoutePathMaps,
+		routeNameConfig: distributionData.RouteNameConfig,
 	}
 }
-
-reactRouterNav([
-	{name: "home", path: "/home"}
-], ["wuming"]).createRouteNav("wuming")
 
 export default reactRouterNav
