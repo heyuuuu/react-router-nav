@@ -16,7 +16,6 @@ react-router具名路由
 详细入参请查阅index.d.ts
 
 >* createPath (创建路径)
->* createFullPath (创建完整路径)
 >* createRouteNav (创建路由导航)
 >* useRouterNav (基于hooks使用路由导航)
 >* addHistory (添加一个history)
