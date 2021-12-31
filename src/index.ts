@@ -1,3 +1,5 @@
+/// <reference path="../types/index.d.ts" />
+
 import * as H from "history"
 import { useEffect } from "react"
 import { useHistory, generatePath } from "react-router-dom"
