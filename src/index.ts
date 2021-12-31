@@ -45,7 +45,7 @@ function reactRouterNav<
 	function transformParams(action: Params): NavSpace.NavigationProps<ActionName> {
 		if(action instanceof Array) {
 			const [name, params, search, state] = action
-			return { name, params, search, state }
+			return { name, params: params || undefined, search: search || undefined, state }
 		}
 		if(typeof action === "object") {
 			return action

@@ -4,7 +4,7 @@ declare namespace NavSpace {
 
 	type OBJECT<T = unknown> = Record<CONSTANT, T>
 
-	type Params = Object
+	type Params = OBJECT
 	type Serach = OBJECT | string
 	type State = OBJECT
 
@@ -21,6 +21,6 @@ declare namespace NavSpace {
 		state?: State
 	}
 	
-	type NavigationParams<ActionName> = ActionName | NavigationProps<ActionName> | [ActionName, Params?, Serach? , State?]
+	type NavigationParams<ActionName> = ActionName | NavigationProps<ActionName> | [ActionName, (Params | null)?, (Serach | null)? , State?]
 
 }
